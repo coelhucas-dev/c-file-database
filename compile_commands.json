@@ -1,0 +1,26 @@
+[
+ {
+  "directory": "/Users/lucascoelho/www/lucascoelho/file-database",
+  "arguments": [
+   "gcc",
+   "-c",
+   "src/file.c",
+   "-o",
+   "obj/file.o",
+   "-Iinclude"
+  ],
+  "file": "src/file.c"
+ },
+ {
+  "directory": "/Users/lucascoelho/www/lucascoelho/file-database",
+  "arguments": [
+   "gcc",
+   "-c",
+   "src/main.c",
+   "-o",
+   "obj/main.o",
+   "-Iinclude"
+  ],
+  "file": "src/main.c"
+ }
+]

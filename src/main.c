@@ -1,3 +1,6 @@
+#include "common.h"
+#include "file.h"
+#include "parse.h"
 #include <getopt.h>
 #include <stdbool.h>
 #include <stdio.h>
@@ -10,15 +13,18 @@ void printUsage(char *argv[]) {
 
 int main(int argc, char *argv[]) {
   int c = 0;
-  char *filePath = NULL;
-  bool createNewFile = false;
+  char *filepath = NULL;
+  bool create_new_file = false;
+  int db_fd = -1;
+  struct dbheader_t *db_header = NULL;
+
   while ((c = getopt(argc, argv, "nf:")) != -1) {
     switch (c) {
     case 'f':
-      filePath = optarg;
+      filepath = optarg;
       break;
     case 'n':
-      createNewFile = true;
+      create_new_file = true;
       break;
     case '?':
       printf("unkown flag -%c\n", c);
@@ -29,9 +35,37 @@ int main(int argc, char *argv[]) {
     }
   }
 
-  if (filePath == NULL) {
-    printf("File Path is a required argument");
+  if (filepath == NULL) {
+    printf("File Path is a required argument\n");
     printUsage(argv);
+    return -1;
+  }
+
+  if (create_new_file) {
+    db_fd = create_db_file(filepath);
+    if (db_fd == STATUS_ERROR) {
+      printf("Unable to create db file\n");
+      return -1;
+    }
+    if (create_db_header(db_fd, &db_header) == STATUS_ERROR) {
+      printf("Failed on creating db header\n");
+      return -1;
+    }
+
+  } else {
+    db_fd = open_db_file(filepath);
+    if (db_fd == STATUS_ERROR) {
+      printf("Unable to open db file\n");
+      return -1;
+    }
+    if (validate_db_header(db_fd, &db_header) == STATUS_ERROR) {
+      printf("Error on validating db header\n");
+      return -1;
+    }
+  }
+
+  if (output_file(db_fd, db_header)) {
+    printf("Error on outputing the file.\n");
     return -1;
   }
 
