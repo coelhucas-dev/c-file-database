@@ -46,7 +46,7 @@ int validate_db_header(int fd, struct dbheader_t **headerOut) {
   }
 
   header->version = ntohs(header->version);
-  header->count = ntohl(header->count);
+  header->count = ntohs(header->count);
   header->filesize = ntohl(header->filesize);
   header->magic = ntohl(header->magic);
 
@@ -75,14 +75,15 @@ int validate_db_header(int fd, struct dbheader_t **headerOut) {
   return STATUS_SUCESS;
 }
 
-int output_file(int fd, struct dbheader_t *header) {
+int output_file(int fd, struct dbheader_t *header,
+                struct employee_t *employees) {
   if (fd < 0) {
     printf("Bad file descriptor, returning STATUS_ERROR\n");
     return STATUS_ERROR;
   }
 
   header->magic = htonl(header->magic);
-  header->count = htonl(header->count);
+  header->count = htons(header->count);
   header->filesize = htonl(header->filesize);
   header->version = htons(header->version);
 
