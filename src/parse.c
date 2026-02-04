@@ -8,6 +8,16 @@
 #include <sys/types.h>
 #include <unistd.h>
 
+void list_employees(struct dbheader_t *header, struct employee_t *employees) {
+  int i = 0;
+  for (; i < header->count; i++) {
+    printf("Employee %d:\n", i);
+    printf("\tName: %s\n", employees[i].name);
+    printf("\tAddress: %s\n", employees[i].address);
+    printf("\tHours worked: %d\n", employees[i].hours);
+  }
+}
+
 int add_employee(struct dbheader_t *header, struct employee_t **employees,
                  char *addstring) {
 
@@ -178,9 +188,6 @@ int output_file(int fd, struct dbheader_t *header,
       perror("write employee");
       return STATUS_ERROR;
     }
-
-    write(1, &employees[i], sizeof(struct employee_t));
   }
-  printf("Success\n");
   return STATUS_SUCCESS;
 }

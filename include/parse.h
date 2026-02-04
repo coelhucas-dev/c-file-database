@@ -24,5 +24,6 @@ int read_employees(int fd, struct dbheader_t *header,
 int add_employee(struct dbheader_t *header, struct employee_t **employees,
                  char *addstring);
 int output_file(int fd, struct dbheader_t *, struct employee_t *employees);
+void list_employees(struct dbheader_t *header, struct employee_t *employees);
 
 #endif // !PARSE_H
