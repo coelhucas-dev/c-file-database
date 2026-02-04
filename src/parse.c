@@ -8,21 +8,47 @@
 #include <sys/types.h>
 #include <unistd.h>
 
-int add_employee(struct dbheader_t *header, struct employee_t *employees,
+int add_employee(struct dbheader_t *header, struct employee_t **employees,
                  char *addstring) {
 
+  if (header == NULL)
+    return STATUS_ERROR;
+  if (employees == NULL)
+    return STATUS_ERROR;
+  if (*employees == NULL)
+    return STATUS_ERROR;
+  if (addstring == NULL)
+    return STATUS_ERROR;
+
+  struct employee_t *e = *employees;
+  e = realloc(e, sizeof(struct employee_t) * header->count + 1);
+
+  if (e == NULL) {
+    printf("Error while allocating memory to add employee\n");
+    return STATUS_ERROR;
+  }
+
+  header->count++;
+
   char *name = strtok(addstring, ",");
+  if (name == NULL)
+    return STATUS_ERROR;
   char *address = strtok(NULL, ",");
+  if (address == NULL)
+    return STATUS_ERROR;
   char *hours = strtok(NULL, ",");
+  if (hours == NULL)
+    return STATUS_ERROR;
 
-  strncpy(employees[header->count - 1].name, name,
-          sizeof(employees[header->count - 1].name));
-  employees[header->count - 1].name[NAME_LEN - 1] = '\0';
-  strncpy(employees[header->count - 1].address, address,
-          sizeof(employees[header->count - 1].address));
+  strncpy(e[header->count - 1].name, name, sizeof(e[header->count - 1].name));
+  e[header->count - 1].name[NAME_LEN - 1] = '\0';
+  strncpy(e[header->count - 1].address, address,
+          sizeof(e[header->count - 1].address));
 
-  employees[header->count - 1].address[ADDRESS_LEN - 1] = '\0';
-  employees[header->count - 1].hours = atoi(hours);
+  e[header->count - 1].address[ADDRESS_LEN - 1] = '\0';
+  e[header->count - 1].hours = atoi(hours);
+
+  *employees = e;
 
   return STATUS_SUCCESS;
 }

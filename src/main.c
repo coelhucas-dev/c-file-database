@@ -78,13 +78,7 @@ int main(int argc, char *argv[]) {
   }
 
   if (addstring != NULL) {
-    db_header->count++;
-    printf("db header%d\n", db_header->count);
-    employees =
-        realloc(employees, db_header->count * sizeof(struct employee_t));
-    printf("emplyees reallocated");
-    add_employee(db_header, employees, addstring);
-    write(1, employees, sizeof(struct employee_t));
+    add_employee(db_header, &employees, addstring);
   }
 
   if (output_file(db_fd, db_header, employees)) {
