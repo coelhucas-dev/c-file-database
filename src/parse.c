@@ -9,6 +9,16 @@
 #include <unistd.h>
 
 void list_employees(struct dbheader_t *header, struct employee_t *employees) {
+  if (header == NULL) {
+    printf("DB Header is NULL, this should never happen\n");
+    return;
+  }
+
+  if (employees == NULL) {
+    printf("Employee list is NULL\n");
+    return;
+  }
+
   int i = 0;
   for (; i < header->count; i++) {
     printf("Employee %d:\n", i);
