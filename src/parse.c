@@ -31,7 +31,7 @@ int add_employee(struct dbheader_t *header, struct employee_t **employees,
     return STATUS_ERROR;
 
   struct employee_t *e = *employees;
-  e = realloc(e, sizeof(struct employee_t) * header->count + 1);
+  e = realloc(e, sizeof(struct employee_t) * (header->count + 1));
 
   if (e == NULL) {
     printf("Error while allocating memory to add employee\n");
