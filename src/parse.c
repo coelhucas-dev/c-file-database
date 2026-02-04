@@ -8,6 +8,50 @@
 #include <sys/types.h>
 #include <unistd.h>
 
+int add_employee(struct dbheader_t *header, struct employee_t *employees,
+                 char *addstring) {
+
+  char *name = strtok(addstring, ",");
+  char *address = strtok(NULL, ",");
+  char *hours = strtok(NULL, ",");
+
+  strncpy(employees[header->count - 1].name, name,
+          sizeof(employees[header->count - 1].name));
+  strncpy(employees[header->count - 1].address, address,
+          sizeof(employees[header->count - 1].address));
+  employees[header->count - 1].hours = atoi(hours);
+
+  return STATUS_SUCCESS;
+}
+
+int read_employees(int fd, struct dbheader_t *header,
+                   struct employee_t **employeesOut) {
+  if (fd == -1) {
+    printf("Bad file descriptor, returning STATUS_ERROR\n");
+    return STATUS_ERROR;
+  }
+
+  int count = header->count;
+  struct employee_t *employees = calloc(count, sizeof(struct employee_t));
+  if (employees == NULL) {
+    printf("Failed allocating memory for employees\n");
+    return STATUS_ERROR;
+  }
+
+  if (read(fd, employees, count * sizeof(struct employee_t)) < 0) {
+    printf("Failed reading employees from file\n");
+    free(employees);
+    return STATUS_ERROR;
+  }
+  int i = 0;
+  for (; i < count; i++) {
+    employees[i].hours = ntohl(employees[i].hours);
+  }
+
+  *employeesOut = employees;
+  return STATUS_SUCCESS;
+}
+
 int create_db_header(struct dbheader_t **headerOut) {
   struct dbheader_t *header = calloc(1, sizeof(struct dbheader_t));
 
@@ -22,7 +66,7 @@ int create_db_header(struct dbheader_t **headerOut) {
 
   *headerOut = header;
 
-  return STATUS_SUCESS;
+  return STATUS_SUCCESS;
 }
 
 int validate_db_header(int fd, struct dbheader_t **headerOut) {
@@ -72,7 +116,7 @@ int validate_db_header(int fd, struct dbheader_t **headerOut) {
 
   *headerOut = header;
 
-  return STATUS_SUCESS;
+  return STATUS_SUCCESS;
 }
 
 int output_file(int fd, struct dbheader_t *header,
@@ -82,14 +126,32 @@ int output_file(int fd, struct dbheader_t *header,
     return STATUS_ERROR;
   }
 
+  int realCount = header->count;
+
   header->magic = htonl(header->magic);
   header->count = htons(header->count);
-  header->filesize = htonl(header->filesize);
+  header->filesize =
+      htonl(sizeof(struct dbheader_t) + sizeof(struct employee_t) * realCount);
   header->version = htons(header->version);
 
   lseek(fd, 0, SEEK_SET);
 
-  write(fd, header, sizeof(struct dbheader_t));
+  if (write(fd, header, sizeof(struct dbheader_t)) < 0) {
+    perror("write header");
+    return STATUS_ERROR;
+  }
 
-  return STATUS_SUCESS;
+  int i = 0;
+
+  for (; i < realCount; i++) {
+    employees[i].hours = htonl(employees[i].hours);
+    if (write(fd, &employees[i], sizeof(struct employee_t)) < 0) {
+      perror("write employee");
+      return STATUS_ERROR;
+    }
+
+    write(1, &employees[i], sizeof(struct employee_t));
+  }
+  printf("Success\n");
+  return STATUS_SUCCESS;
 }
