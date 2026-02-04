@@ -17,8 +17,11 @@ int add_employee(struct dbheader_t *header, struct employee_t *employees,
 
   strncpy(employees[header->count - 1].name, name,
           sizeof(employees[header->count - 1].name));
+  employees[header->count - 1].name[NAME_LEN - 1] = '\0';
   strncpy(employees[header->count - 1].address, address,
           sizeof(employees[header->count - 1].address));
+
+  employees[header->count - 1].address[ADDRESS_LEN - 1] = '\0';
   employees[header->count - 1].hours = atoi(hours);
 
   return STATUS_SUCCESS;
